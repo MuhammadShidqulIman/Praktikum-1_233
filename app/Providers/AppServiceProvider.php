@@ -21,7 +21,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Gate untuk Product (Sudah ada sebelumnya)
         Gate::define('export-product', function (User $user) {
+            return $user->role === 'admin';
+        });
+
+        // Gate untuk Category (Tambahan baru untuk tugas UCP)
+        Gate::define('access-category', function (User $user) {
             return $user->role === 'admin';
         });
     }

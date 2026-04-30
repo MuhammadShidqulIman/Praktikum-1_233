@@ -3,21 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\User;
+use App\Models\Kategori;
+use App\Models\User; // Wajib dipanggil untuk dropdown Owner
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
     /**
      * Menampilkan daftar produk.
-     * Menu ini diamankan oleh Gate 'export-product' di navigasi.
      */
     public function index()
     {
-        // Mengambil data produk beserta user (owner) dengan pagination
-        $products = Product::with('user')->paginate(10);
-
+        // Mengambil semua produk beserta data relasi kategorinya
+        $products = Product::with('kategori')->get();
         return view('product.index', compact('products'));
     }
 
@@ -26,85 +24,87 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $users = User::orderBy('name')->get();
-        return view('product.create', compact('users'));
+        // Ambil semua data kategori dan user untuk dropdown
+        $categories = Kategori::all();
+        $users = User::all();
+        
+        return view('product.create', compact('categories', 'users'));
     }
 
     /**
-     * Menyimpan produk baru ke database.
+     * Menyimpan data produk baru ke database.
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'qty'      => 'required|integer|min:0',
-            'price'    => 'required|numeric|min:0',
-            'user_id'  => 'required|exists:users,id',
+        // Validasi input dari form
+        $request->validate([
+            'name'        => 'required|string|max:255',
+            'qty'         => 'required|integer',
+            'price'       => 'required|numeric',
+            'user_id'     => 'required|exists:users,id',      // Sesuai dengan name="user_id" di view kamu
+            'category_id' => 'required|exists:kategoris,id'   // Sesuai dengan name="category_id"
         ]);
 
-        Product::create($validated);
+        Product::create($request->all());
 
-        return redirect()->route('product.index')->with('success', 'Product created successfully.');
+        return redirect()->route('product.index')->with('success', 'Product added successfully!');
     }
 
     /**
-     * Menampilkan detail produk.
+     * Menampilkan detail satu produk.
      */
     public function show($id)
     {
-        $product = Product::with('user')->findOrFail($id);
+        // Mencari produk berdasarkan ID, kalau tidak ketemu akan otomatis error 404
+        $product = Product::findOrFail($id);
+        
         return view('product.view', compact('product'));
     }
 
     /**
      * Menampilkan form edit produk.
-     * PROTEKSI: Menggunakan Policy 'update'.
      */
-    public function edit(Product $product)
+    public function edit($id)
     {
-        // Melakukan verifikasi: Admin & Pemilik Data
-        $this->authorize('update', $product);
-
-        $users = User::orderBy('name')->get();
-        return view('product.edit', compact('product', 'users'));
+        // Mencari produk berdasarkan ID
+        $product = Product::findOrFail($id);
+        
+        // Ambil semua data kategori dan user untuk dropdown edit
+        $categories = Kategori::all();
+        $users = User::all();
+        
+        return view('product.edit', compact('product', 'categories', 'users'));
     }
 
     /**
-     * Memperbarui data produk.
-     * PROTEKSI: Menggunakan Policy 'update'.
+     * Memperbarui data produk di database.
      */
     public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id);
-
-        // Melakukan verifikasi: Admin & Pemilik Data
-        $this->authorize('update', $product);
-
-        $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'qty'      => 'required|integer|min:0',
-            'price'    => 'required|numeric|min:0',
-            'user_id'  => 'required|exists:users,id',
+        $request->validate([
+            'name'        => 'required|string|max:255',
+            'qty'         => 'required|integer',
+            'price'       => 'required|numeric',
+            'user_id'     => 'required|exists:users,id',
+            'category_id' => 'required|exists:kategoris,id'
         ]);
 
-        $product->update($validated);
+        // Mencari produk lalu di-update
+        $product = Product::findOrFail($id);
+        $product->update($request->all());
 
-        return redirect()->route('product.index')->with('success', 'Product updated successfully.');
+        return redirect()->route('product.index')->with('success', 'Product updated successfully!');
     }
 
     /**
      * Menghapus produk.
-     * PROTEKSI: Menggunakan Policy 'delete'.
      */
-    public function delete($id)
+    public function destroy($id)
     {
+        // Mencari produk lalu dihapus
         $product = Product::findOrFail($id);
-
-        // Melakukan verifikasi: Admin & Pemilik Data
-        $this->authorize('delete', $product);
-
         $product->delete();
-
-        return redirect()->route('product.index')->with('success', 'Product deleted successfully.');
+        
+        return redirect()->route('product.index')->with('success', 'Product deleted successfully!');
     }
 }

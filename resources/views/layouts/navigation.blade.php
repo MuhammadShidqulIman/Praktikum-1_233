@@ -37,6 +37,14 @@
                         {{ __('Product') }}
                     </x-nav-link>
                     @endcan
+                    <!-- Category (HANYA ADMIN) -->
+                    @can('access-category')
+                    <x-nav-link
+                    :href="route('kategori.index')"
+                    :active="request()->routeIs('kategori.*')">
+                        {{ __('Category') }}
+                    </x-nav-link>
+                    @endcan
 
                 </div>
             </div>
@@ -174,6 +182,14 @@
             :href="route('product.index')"
             :active="request()->routeIs('product.*')">
                 {{ __('Product') }}
+            </x-responsive-nav-link>
+            @endcan
+            <!-- Category Responsive (ADMIN) -->
+            @can('access-category')
+            <x-responsive-nav-link
+            :href="route('kategori.index')"
+            :active="request()->routeIs('kategori.*')">
+                {{ __('Category') }}
             </x-responsive-nav-link>
             @endcan
 

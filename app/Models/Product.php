@@ -10,19 +10,21 @@ class Product extends Model
 {
     use HasFactory;
 
-    // Tambahkan baris ini untuk mengizinkan input data
     protected $fillable = [
         'name',
         'qty',
         'price',
         'user_id',
+        'category_id',
     ];
 
-    /**
-     * Relasi ke User
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function kategori(): BelongsTo
+    {
+        return $this->belongsTo(Kategori::class, 'category_id');
     }
 }

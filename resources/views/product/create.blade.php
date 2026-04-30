@@ -1,95 +1,101 @@
 <x-app-layout>
-    <div class="py-12">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-8 text-gray-900 dark:text-gray-100">
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Add Product') }}
+        </h2>
+    </x-slot>
 
-                    {{-- Header --}}
-                    <div class="flex items-center gap-3 mb-6">
-                        <a href="{{ route('product.index') }}" class="p-1.5 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
+    <div class="py-12 flex justify-center">
+        <div class="w-full max-w-3xl sm:px-6 lg:px-8">
+            <div class="bg-[#1f2937] overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-8 text-gray-100">
+                    
+                    <div class="mb-6">
+                        <a href="{{ route('product.index') }}" class="text-gray-400 hover:text-white mr-2">
+                            &lt; Back
                         </a>
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">Add Product</h2>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Fill in the details to add a new product</p>
-                        </div>
+                        <h2 class="text-2xl font-bold inline-block">Add Product</h2>
+                        <p class="text-gray-400 text-sm mt-1">Fill in the details to add a new product</p>
                     </div>
 
-                    {{-- Form --}}
-                    <form action="{{ route('product.store') }}" method="POST" class="space-y-5">
+                    <!-- BLOK ERROR (Biar ketahuan kalau gagal save kenapa) -->
+                    @if ($errors->any())
+                        <div class="mb-4 p-4 bg-red-900 border border-red-500 text-red-200 rounded-md">
+                            <strong>Gagal menyimpan! Periksa isian berikut:</strong>
+                            <ul class="list-disc pl-5 mt-2 text-sm">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('product.store') }}" method="POST">
                         @csrf
-
-                        {{-- Name --}}
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Product Name <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" id="name" name="name" value="{{ old('name') }}" 
-                                placeholder="e.g. Wireless Headphones"
-                                class="w-full px-4 py-2.5 rounded-lg border text-sm transition focus:outline-none focus:ring-2 {{ $errors->has('name') ? 'border-red-400 bg-red-50 dark:bg-red-900/20 focus:ring-red-500' : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-indigo-500' }} text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
-                            @error('name')
-                                <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
-                            @enderror
+                        
+                        <!-- Product Name -->
+                        <div class="mb-4">
+                            <label for="name" class="block text-sm font-medium text-gray-300">Product Name <span class="text-red-500">*</span></label>
+                            <input type="text" name="name" id="name" value="{{ old('name') }}" 
+                                   class="mt-1 block w-full bg-gray-700 border-gray-600 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" 
+                                   placeholder="Sepatu NIKE">
                         </div>
 
-                        {{-- qty & Price --}}
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <!-- Qty -->
                             <div>
-                                <label for="qty" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    qty <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" id="qty" name="qty" value="{{ old('qty') }}" 
-                                    placeholder="0" min="0"
-                                    class="w-full px-4 py-2.5 rounded-lg border text-sm transition focus:outline-none focus:ring-2 {{ $errors->has('qty') ? 'border-red-400 bg-red-50 dark:bg-red-900/20 focus:ring-red-500' : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-indigo-500' }} text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
-                                @error('qty')
-                                    <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
-                                @enderror
+                                <label for="qty" class="block text-sm font-medium text-gray-300">qty <span class="text-red-500">*</span></label>
+                                <input type="number" name="qty" id="qty" value="{{ old('qty') }}" 
+                                       class="mt-1 block w-full bg-gray-700 border-gray-600 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                             </div>
 
+                            <!-- Price -->
                             <div>
-                                <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Price (Rp) <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" id="price" name="price" value="{{ old('price') }}" 
-                                    placeholder="0" min="0" step="0.01"
-                                    class="w-full px-4 py-2.5 rounded-lg border text-sm transition focus:outline-none focus:ring-2 {{ $errors->has('price') ? 'border-red-400 bg-red-50 dark:bg-red-900/20 focus:ring-red-500' : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-indigo-500' }} text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
-                                @error('price')
-                                    <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
-                                @enderror
+                                <label for="price" class="block text-sm font-medium text-gray-300">Price (Rp) <span class="text-red-500">*</span></label>
+                                <input type="number" name="price" id="price" value="{{ old('price') }}" 
+                                       class="mt-1 block w-full bg-gray-700 border-gray-600 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                             </div>
                         </div>
 
-                        {{-- User --}}
-                        <div>
-                            <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Owner <span class="text-red-500">*</span>
-                            </label>
-                            <select id="user_id" name="user_id" 
-                                class="w-full px-4 py-2.5 rounded-lg border text-sm transition focus:outline-none focus:ring-2 {{ $errors->has('user_id') ? 'border-red-400 bg-red-50 dark:bg-red-900/20 focus:ring-red-500' : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-indigo-500' }} text-gray-900 dark:text-gray-100">
-                                <option value="">- Select Owner -</option>
-                                @foreach ($users as $user)
+                        <!-- Category Dropdown -->
+                        <div class="mb-4">
+                            <label for="category_id" class="block text-sm font-medium text-gray-300">Category <span class="text-red-500">*</span></label>
+                            <select name="category_id" id="category_id" 
+                                    class="mt-1 block w-full bg-gray-700 border-gray-600 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                <option value="">-- Select Category --</option>
+                                @foreach($categories as $kategori)
+                                    <option value="{{ $kategori->id }}" {{ old('category_id') == $kategori->id ? 'selected' : '' }}>
+                                        {{ $kategori->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Owner (User) Dropdown -->
+                        <div class="mb-6">
+                            <label for="user_id" class="block text-sm font-medium text-gray-300">Owner <span class="text-red-500">*</span></label>
+                            <select name="user_id" id="user_id" 
+                                    class="mt-1 block w-full bg-gray-700 border-gray-600 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                <option value="">-- Select Owner --</option>
+                                @foreach($users as $user)
                                     <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
                                         {{ $user->name }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('user_id')
-                                <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
-                            @enderror
                         </div>
 
-                        {{-- Actions --}}
-                        <div class="flex items-center justify-end gap-3 pt-2">
-                            <a href="{{ route('product.index') }}" class="px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        <!-- Tombol Action -->
+                        <div class="flex items-center justify-end mt-4">
+                            <a href="{{ route('product.index') }}" class="px-4 py-2 bg-transparent border border-gray-500 text-gray-300 rounded-md hover:bg-gray-700 mr-3 transition">
                                 Cancel
                             </a>
-                            <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
+                            <button type="submit" class="px-6 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">
                                 Save Product
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
